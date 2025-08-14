@@ -1,0 +1,279 @@
+{
+  "info": {
+    "name": "Rental App Backend API",
+    "description": "API collection for testing the Rental App backend with authentication",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "API Info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": [""]
+        }
+      }
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "User Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"1234567890\",\n  \"address\": \"123 Main St, City\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/user/signup",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "auth", "user", "signup"]
+            }
+          }
+        },
+        {
+          "name": "User Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/user/signin",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "auth", "user", "signin"]
+            }
+          }
+        },
+        {
+          "name": "Provider Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Farm Equipment Co\",\n  \"email\": \"provider@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"9876543210\",\n  \"address\": \"456 Farm Rd, Rural Area\",\n  \"businessName\": \"Best Farm Equipment\",\n  \"businessType\": \"Equipment Rental\",\n  \"licenseNumber\": \"LIC123456\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/provider/signup",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "auth", "provider", "signup"]
+            }
+          }
+        },
+        {
+          "name": "Provider Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"provider@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/auth/provider/signin",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "auth", "provider", "signin"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users API",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Create User (Direct)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Direct User\",\n  \"email\": \"direct@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"1111111111\",\n  \"address\": \"Direct Address\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/users",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "users"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Providers API",
+      "item": [
+        {
+          "name": "Get All Providers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/providers",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "providers"]
+            }
+          }
+        },
+        {
+          "name": "Create Provider (Direct)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Direct Provider\",\n  \"email\": \"directprovider@example.com\",\n  \"password\": \"password123\",\n  \"phone\": \"2222222222\",\n  \"address\": \"Provider Address\",\n  \"businessName\": \"Direct Business\",\n  \"businessType\": \"Equipment Rental\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/providers",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "providers"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Equipment API",
+      "item": [
+        {
+          "name": "Get All Equipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/equipments",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "equipments"]
+            }
+          }
+        },
+        {
+          "name": "Create Equipment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Heavy Duty Tractor\",\n  \"category\": \"Tractors\",\n  \"type\": \"Heavy Equipment\",\n  \"description\": \"Powerful tractor for heavy farming\",\n  \"price\": 2500,\n  \"address\": \"Farm Location\",\n  \"providerId\": \"REPLACE_WITH_PROVIDER_ID\",\n  \"providerEmail\": \"provider@example.com\",\n  \"providerName\": \"Farm Equipment Co\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:5000/api/equipments",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "equipments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Requests API",
+      "item": [
+        {
+          "name": "Get All Requests",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:5000/api/requests",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "5000",
+              "path": ["api", "requests"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "agricultural-equipment-rental-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Agricultural Equipment Rental Platform",
+  "main": "app.js",
+  "private": false,
+  "scripts": {
+    "start": "node ./bin/www",
+    "dev": "nodemon ./bin/www",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Backend build completed\"",
+    "postinstall": "echo \"Backend dependencies installed\"",
+    "deploy": "npm run build && npm start",
+    "lint": "echo \"Linting completed\""
+  },
+  "keywords": [
+    "agricultural",
+    "equipment",
+    "rental",
+    "nodejs",
+    "express",
+    "mongodb",
+    "api"
+  ],
+  "author": "Development Team",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "dotenv": "^17.2.1",
+    "express": "~4.16.1",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.17.1",
+    "morgan": "~1.9.1",
+    "nodemailer": "^6.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/agricultural-equipment-rental"
+  }
+}
