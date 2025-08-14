@@ -7,7 +7,6 @@
 var app = require('../app');
 var debug = require('debug')('backend:server');
 var http = require('http');
-var mongoose = require('mongoose');
 
 /**
  * Get port from environment and store in Express.
@@ -26,51 +25,14 @@ var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
- * Wait for database connection before starting server.
  */
 
-// Start server immediately - don't wait for database
-let serverStarted = false;
+console.log('🚀 Starting HTTP server on port:', port);
+console.log('🌐 Binding to host: 0.0.0.0');
 
-console.log('🚀 Starting HTTP server immediately...');
-console.log('📊 Mongoose connection state:', mongoose.connection.readyState);
-// 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
-
-// Start server immediately for Render compatibility
-startServer();
-
-// Also set up event listeners for future connections
-mongoose.connection.once('open', () => {
-  console.log('🔗 Database connection confirmed after server start');
-});
-
-mongoose.connection.on('error', (err) => {
-  console.error('❌ Database connection error:', err.message);
-});
-
-function startServer() {
-  if (serverStarted) {
-    console.log('⚠️ Server already started, skipping...');
-    return;
-  }
-  serverStarted = true;
-
-  console.log('🎯 Attempting to bind server to port:', port, 'on host: 0.0.0.0');
-  console.log('🔧 Server object created:', !!server);
-
-  try {
-    server.listen(port, '0.0.0.0', () => {
-      console.log('✅ Server.listen() callback executed successfully');
-    });
-
-    server.on('error', onError);
-    server.on('listening', onListening);
-
-    console.log('📡 Event listeners attached to server');
-  } catch (error) {
-    console.error('❌ Error in startServer():', error);
-  }
-}
+server.listen(port, '0.0.0.0');
+server.on('error', onError);
+server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
