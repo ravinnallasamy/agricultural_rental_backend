@@ -100,9 +100,9 @@ router.post('/user/signup', async (req, res) => {
         <h1>Welcome ${name}!</h1>
         <p>Thank you for joining our Agricultural Equipment Rental Platform.</p>
         <p>Click the link below to activate your account:</p>
-        <a href='${config.urls.backend}/api/auth/user/activate/${activationToken}'>Activate Account</a>
+        <a href='${config.urls.frontend}/activate/${activationToken}'>Activate Account</a>
         <p>If the link doesn't work, copy and paste this URL into your browser:</p>
-        <p>${config.urls.backend}/api/auth/user/activate/${activationToken}</p>
+        <p>${config.urls.frontend}/activate/${activationToken}</p>
       `
     };
 
@@ -153,16 +153,20 @@ router.get('/user/activate/:token', async (req, res) => {
     );
 
     if (!user) {
-      return res.status(400).json("Invalid or expired activation link");
+      return res.status(400).json({ message: "Invalid or expired activation link" });
     }
 
-    // Redirect to frontend activation success page (User port: 3000)
-    const userFrontendUrl = 'http://localhost:3000';
-    res.redirect(`${userFrontendUrl}/activation-success?type=user`);
+    // Return JSON response for frontend to handle
+    res.status(200).json({
+      message: "Account activated successfully!",
+      email: user.email,
+      userType: "user",
+      id: user._id
+    });
 
   } catch (err) {
     console.error('Activation error:', err);
-    res.status(400).json("Invalid or expired activation link");
+    res.status(400).json({ message: "Invalid or expired activation link" });
   }
 });
 
@@ -251,9 +255,9 @@ router.post('/provider/signup', async (req, res) => {
         <p>Thank you for joining our Agricultural Equipment Rental Platform as a Provider.</p>
         <p>Business: ${businessName || 'Not specified'}</p>
         <p>Click the link below to activate your provider account:</p>
-        <a href='${config.urls.backend}/api/auth/provider/activate/${activationToken}'>Activate Provider Account</a>
+        <a href='${config.urls.frontend}/activate/${activationToken}'>Activate Provider Account</a>
         <p>If the link doesn't work, copy and paste this URL into your browser:</p>
-        <p>${config.urls.backend}/api/auth/provider/activate/${activationToken}</p>
+        <p>${config.urls.frontend}/activate/${activationToken}</p>
       `
     };
 
@@ -314,16 +318,20 @@ router.get('/provider/activate/:token', async (req, res) => {
     );
 
     if (!provider) {
-      return res.status(400).json("Invalid or expired activation link");
+      return res.status(400).json({ message: "Invalid or expired activation link" });
     }
 
-    // Redirect to frontend activation success page (Provider port: 3001)
-    const providerFrontendUrl = 'http://localhost:3001';
-    res.redirect(`${providerFrontendUrl}/activation-success?type=provider`);
+    // Return JSON response for frontend to handle
+    res.status(200).json({
+      message: "Provider account activated successfully!",
+      email: provider.email,
+      userType: "provider",
+      id: provider._id
+    });
 
   } catch (err) {
     console.error('Provider activation error:', err);
-    res.status(400).json("Invalid or expired activation link");
+    res.status(400).json({ message: "Invalid or expired activation link" });
   }
 });
 
