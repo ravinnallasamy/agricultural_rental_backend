@@ -7,6 +7,7 @@
 var app = require('../app');
 var debug = require('debug')('backend:server');
 var http = require('http');
+var mongoose = require('mongoose');
 
 /**
  * Get port from environment and store in Express.
@@ -25,11 +26,41 @@ var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
+ * Wait for database connection before starting server.
  */
 
-server.listen(port, '0.0.0.0');
-server.on('error', onError);
-server.on('listening', onListening);
+// Wait for database connection before starting server
+let serverStarted = false;
+
+mongoose.connection.once('open', () => {
+  if (!serverStarted) {
+    console.log('🔗 Database connected, starting HTTP server...');
+    startServer();
+  }
+});
+
+// Fallback: Start server after timeout even if DB isn't ready (for Render compatibility)
+setTimeout(() => {
+  if (!serverStarted) {
+    console.log('⏰ Starting server without waiting for database (timeout fallback)...');
+    startServer();
+  }
+}, 10000); // 10 second timeout
+
+// Handle database connection errors
+mongoose.connection.on('error', (err) => {
+  console.error('❌ Database connection error:', err.message);
+  // Don't exit - let server start anyway for Render compatibility
+});
+
+function startServer() {
+  if (serverStarted) return;
+  serverStarted = true;
+
+  server.listen(port, '0.0.0.0');
+  server.on('error', onError);
+  server.on('listening', onListening);
+}
 
 /**
  * Normalize a port into a number, string, or false.
