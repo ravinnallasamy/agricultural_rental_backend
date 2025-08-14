@@ -29,37 +29,47 @@ var server = http.createServer(app);
  * Wait for database connection before starting server.
  */
 
-// Wait for database connection before starting server
+// Start server immediately - don't wait for database
 let serverStarted = false;
 
+console.log('🚀 Starting HTTP server immediately...');
+console.log('📊 Mongoose connection state:', mongoose.connection.readyState);
+// 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+
+// Start server immediately for Render compatibility
+startServer();
+
+// Also set up event listeners for future connections
 mongoose.connection.once('open', () => {
-  if (!serverStarted) {
-    console.log('🔗 Database connected, starting HTTP server...');
-    startServer();
-  }
+  console.log('🔗 Database connection confirmed after server start');
 });
 
-// Fallback: Start server after timeout even if DB isn't ready (for Render compatibility)
-setTimeout(() => {
-  if (!serverStarted) {
-    console.log('⏰ Starting server without waiting for database (timeout fallback)...');
-    startServer();
-  }
-}, 10000); // 10 second timeout
-
-// Handle database connection errors
 mongoose.connection.on('error', (err) => {
   console.error('❌ Database connection error:', err.message);
-  // Don't exit - let server start anyway for Render compatibility
 });
 
 function startServer() {
-  if (serverStarted) return;
+  if (serverStarted) {
+    console.log('⚠️ Server already started, skipping...');
+    return;
+  }
   serverStarted = true;
 
-  server.listen(port, '0.0.0.0');
-  server.on('error', onError);
-  server.on('listening', onListening);
+  console.log('🎯 Attempting to bind server to port:', port, 'on host: 0.0.0.0');
+  console.log('🔧 Server object created:', !!server);
+
+  try {
+    server.listen(port, '0.0.0.0', () => {
+      console.log('✅ Server.listen() callback executed successfully');
+    });
+
+    server.on('error', onError);
+    server.on('listening', onListening);
+
+    console.log('📡 Event listeners attached to server');
+  } catch (error) {
+    console.error('❌ Error in startServer():', error);
+  }
 }
 
 /**
@@ -87,6 +97,14 @@ function normalizePort(val) {
  */
 
 function onError(error) {
+  console.error('🚨 Server error occurred:', error);
+  console.error('🔍 Error details:', {
+    code: error.code,
+    syscall: error.syscall,
+    port: port,
+    message: error.message
+  });
+
   if (error.syscall !== 'listen') {
     throw error;
   }
@@ -98,14 +116,15 @@ function onError(error) {
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+      console.error('❌ ' + bind + ' requires elevated privileges');
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+      console.error('❌ ' + bind + ' is already in use');
       process.exit(1);
       break;
     default:
+      console.error('❌ Unexpected server error:', error);
       throw error;
   }
 }
