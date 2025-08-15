@@ -371,7 +371,8 @@ router.post('/password/forgot', async (req, res) => {
     account.passwordResetExpires = new Date(Date.now() + expiresMs);
     await account.save();
 
-    const resetUrl = `${config.urls.frontend}/reset-password/${token}`;
+    const frontendBase = (config.urls.frontend || '').replace(/\/+$/, '');
+    const resetUrl = `${frontendBase}/reset-password/${token}`;
     const mail = {
       from: config.email.from,
       to: email,
