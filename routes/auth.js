@@ -336,6 +336,17 @@ router.get('/provider/activate/:token', async (req, res) => {
 });
 
 // ===== Password Reset (User + Provider) =====
+// helper to convert expiresIn like '1h', '30m', '1d' to ms
+function getMsFromExpiresIn(v) {
+  if (typeof v !== 'string') return 3600000;
+  const m = v.trim().match(/^(\d+)([smhd])$/i);
+  if (!m) return 3600000;
+  const num = parseInt(m[1], 10);
+  const unit = m[2].toLowerCase();
+  const map = { s: 1000, m: 60000, h: 3600000, d: 86400000 };
+  return num * (map[unit] || 3600000);
+}
+
 // 1) Request reset link
 router.post('/password/forgot', async (req, res) => {
   try {
@@ -356,7 +367,8 @@ router.post('/password/forgot', async (req, res) => {
     const token = jwt.sign(payload, config.jwt.resetSecret, { expiresIn: config.jwt.resetExpiresIn });
 
     account.passwordResetToken = token;
-    account.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1h
+    const expiresMs = getMsFromExpiresIn(config.jwt.resetExpiresIn);
+    account.passwordResetExpires = new Date(Date.now() + expiresMs);
     await account.save();
 
     const resetUrl = `${config.urls.frontend}/reset-password/${token}`;
@@ -368,6 +380,7 @@ router.post('/password/forgot', async (req, res) => {
         <h2>Password Reset</h2>
         <p>We received a request to reset your password. Click the link below to set a new password:</p>
         <a href='${resetUrl}'>Reset Password</a>
+        <p>This link will expire in ${config.jwt.resetExpiresIn}.</p>
         <p>If you did not request this, you can safely ignore this email.</p>
       `
     };
