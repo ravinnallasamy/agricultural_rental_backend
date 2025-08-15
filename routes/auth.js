@@ -79,9 +79,9 @@ router.post('/user/signin', async (req, res) => {
 router.post('/user/signup', async (req, res) => {
   try {
     const { name, email, password, phone, address } = req.body;
-    
+
     console.log('User signup attempt:', email);
-    
+
     const userExist = await User.findOne({ email });
     if (userExist) {
       return res.status(400).json("User email already exists");
@@ -89,9 +89,9 @@ router.post('/user/signup', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const activationToken = jwt.sign({ email }, config.jwt.activationSecret);
-    
+
     console.log('Activation token generated:', activationToken);
-    
+
     const mail = {
       from: config.email.from,
       to: email,
@@ -122,7 +122,7 @@ router.post('/user/signup', async (req, res) => {
         });
 
         await user.save();
-        res.status(201).json({ 
+        res.status(201).json({
           "message": "Account created successfully! Please check your email to activate your account.",
           "email": email
         });
@@ -140,10 +140,10 @@ router.get('/user/activate/:token', async (req, res) => {
   try {
     const token = req.params.token;
     const decoded = jwt.verify(token, config.jwt.activationSecret);
-    
+
     const user = await User.findOneAndUpdate(
       { email: decoded.email, token: token },
-      { 
+      {
         $set: {
           isActivated: true,
           token: null
@@ -229,13 +229,13 @@ router.post('/provider/signin', async (req, res) => {
 // Provider Sign Up
 router.post('/provider/signup', async (req, res) => {
   try {
-    const { 
+    const {
       name, email, password, phone, address,
-      businessName, businessType, licenseNumber 
+      businessName, businessType, licenseNumber
     } = req.body;
-    
+
     console.log('Provider signup attempt:', email);
-    
+
     const providerExist = await Provider.findOne({ email });
     if (providerExist) {
       return res.status(400).json("Provider email already exists");
@@ -243,9 +243,9 @@ router.post('/provider/signup', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const activationToken = jwt.sign({ email }, config.jwt.activationSecret);
-    
+
     console.log('Provider activation token generated:', activationToken);
-    
+
     const mail = {
       from: config.email.from,
       to: email,
@@ -287,7 +287,7 @@ router.post('/provider/signup', async (req, res) => {
         const provider = new Provider(providerData);
 
         await provider.save();
-        res.status(201).json({ 
+        res.status(201).json({
           "message": "Provider account created successfully! Please check your email to activate your account.",
           "email": email
         });
@@ -305,10 +305,10 @@ router.get('/provider/activate/:token', async (req, res) => {
   try {
     const token = req.params.token;
     const decoded = jwt.verify(token, config.jwt.activationSecret);
-    
+
     const provider = await Provider.findOneAndUpdate(
       { email: decoded.email, token: token },
-      { 
+      {
         $set: {
           isActivated: true,
           token: null
@@ -334,6 +334,92 @@ router.get('/provider/activate/:token', async (req, res) => {
     res.status(400).json({ message: "Invalid or expired activation link" });
   }
 });
+
+// ===== Password Reset (User + Provider) =====
+// 1) Request reset link
+router.post('/password/forgot', async (req, res) => {
+  try {
+    const { email, userType } = req.body;
+    if (!email || !userType) {
+      return res.status(400).json({ message: 'email and userType are required' });
+    }
+
+    const Model = userType === 'provider' ? Provider : User;
+    const account = await Model.findOne({ email });
+
+    // Always respond 200 to prevent account enumeration
+    if (!account) {
+      return res.status(200).json({ message: 'If the email exists, a reset link has been sent.' });
+    }
+
+    const payload = { email, userType };
+    const token = jwt.sign(payload, config.jwt.resetSecret, { expiresIn: config.jwt.resetExpiresIn });
+
+    account.passwordResetToken = token;
+    account.passwordResetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1h
+    await account.save();
+
+    const resetUrl = `${config.urls.frontend}/reset-password/${token}`;
+    const mail = {
+      from: config.email.from,
+      to: email,
+      subject: 'Reset your password',
+      html: `
+        <h2>Password Reset</h2>
+        <p>We received a request to reset your password. Click the link below to set a new password:</p>
+        <a href='${resetUrl}'>Reset Password</a>
+        <p>If you did not request this, you can safely ignore this email.</p>
+      `
+    };
+
+    transporter.sendMail(mail, (err) => {
+      if (err) {
+        console.error('Reset email send error:', err);
+      }
+    });
+
+    return res.status(200).json({ message: 'If the email exists, a reset link has been sent.' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// 2) Reset password
+router.post('/password/reset', async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return res.status(400).json({ message: 'token and password are required' });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(token, config.jwt.resetSecret);
+    } catch (e) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    const Model = decoded.userType === 'provider' ? Provider : User;
+    const account = await Model.findOne({ email: decoded.email, passwordResetToken: token });
+
+    if (!account || !account.passwordResetExpires || account.passwordResetExpires < new Date()) {
+      return res.status(400).json({ message: 'Invalid or expired token' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    account.password = hashedPassword;
+    account.passwordResetToken = null;
+    account.passwordResetExpires = null;
+    await account.save();
+
+    return res.status(200).json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 // Password verification endpoint for profile updates
 router.post('/verify-password', async (req, res) => {

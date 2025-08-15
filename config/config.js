@@ -14,7 +14,9 @@ const config = {
   jwt: {
     secret: process.env.JWT_SECRET || 'abcd',
     activationSecret: process.env.JWT_ACTIVATION_SECRET || 'abcdefgh',
-    expiresIn: process.env.JWT_EXPIRE || '1d'
+    resetSecret: process.env.JWT_RESET_SECRET || 'rstsecret',
+    expiresIn: process.env.JWT_EXPIRE || '1d',
+    resetExpiresIn: process.env.JWT_RESET_EXPIRE || '1h'
   },
   
   // Email Configuration
