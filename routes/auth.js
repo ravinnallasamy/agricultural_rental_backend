@@ -100,9 +100,9 @@ router.post('/user/signup', async (req, res) => {
         <h1>Welcome ${name}!</h1>
         <p>Thank you for joining our Agricultural Equipment Rental Platform.</p>
         <p>Click the link below to activate your account:</p>
-        <a href='${config.urls.frontend}/activate/${activationToken}'>Activate Account</a>
+        <a href='${config.urls.frontend}/?activate=${activationToken}'>Activate Account</a>
         <p>If the link doesn't work, copy and paste this URL into your browser:</p>
-        <p>${config.urls.frontend}/activate/${activationToken}</p>
+        <p>${config.urls.frontend}/?activate=${activationToken}</p>
       `
     };
 
@@ -255,9 +255,9 @@ router.post('/provider/signup', async (req, res) => {
         <p>Thank you for joining our Agricultural Equipment Rental Platform as a Provider.</p>
         <p>Business: ${businessName || 'Not specified'}</p>
         <p>Click the link below to activate your provider account:</p>
-        <a href='${config.urls.frontend}/activate/${activationToken}'>Activate Provider Account</a>
+        <a href='${config.urls.frontend}/?activate=${activationToken}'>Activate Provider Account</a>
         <p>If the link doesn't work, copy and paste this URL into your browser:</p>
-        <p>${config.urls.frontend}/activate/${activationToken}</p>
+        <p>${config.urls.frontend}/?activate=${activationToken}</p>
       `
     };
 
