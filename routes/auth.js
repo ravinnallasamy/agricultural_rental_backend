@@ -420,6 +420,31 @@ router.post('/password/reset', async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired token' });
     }
 
+// 2b) Verify reset token (for frontend pre-check)
+router.get('/password/reset/verify/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    let decoded;
+    try {
+      decoded = jwt.verify(token, config.jwt.resetSecret);
+    } catch (e) {
+      return res.status(400).json({ valid: false, message: 'Invalid or expired token' });
+    }
+
+    const Model = decoded.userType === 'provider' ? Provider : User;
+    const account = await Model.findOne({ email: decoded.email, passwordResetToken: token });
+    if (!account || !account.passwordResetExpires || account.passwordResetExpires < new Date()) {
+      return res.status(400).json({ valid: false, message: 'Invalid or expired token' });
+    }
+
+    return res.status(200).json({ valid: true, userType: decoded.userType });
+  } catch (err) {
+    console.error('Verify reset token error:', err);
+    return res.status(500).json({ valid: false, message: 'Internal server error' });
+  }
+});
+
+
     const hashedPassword = await bcrypt.hash(password, 10);
     account.password = hashedPassword;
     account.passwordResetToken = null;
